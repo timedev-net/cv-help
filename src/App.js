@@ -1,24 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import "assets/vendor/nucleo/css/nucleo.css";
+import "assets/vendor/font-awesome/css/font-awesome.min.css";
+import "assets/css/argon-design-system-react.css";
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min.css';
+import "react-notification-alert/dist/animate.css";
+import { Provider } from 'react-redux'
+import store from './store'
+import Routes from './Routes'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <Routes />
+    </Provider>
   );
 }
 
