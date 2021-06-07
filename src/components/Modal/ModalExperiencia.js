@@ -2,24 +2,27 @@ import React, {useState} from 'react';
 import { Button, Modal, Input, Form, Row, Col, FormGroup, FormFeedback, Label, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { useSelector, useDispatch } from 'react-redux'
+import axios from 'axios';
+import { api_experiencia } from '../../services/api.js';
+import curriculoActions from '../../store/actions/curriculoActions'
 
 export default function ModalExperiencia() {
-  //constante que gerencia a modal open e close.
-  const [modalOpen, setModalOpen] = useState(false);
-  // função para limpar os campos
-  function Limpar() {
-    formik.values.nome = '';
-    formik.values.local = '';
-    formik.values.atividade = '';
-    formik.values.dataInicio = '';
-    formik.values.dataTermino = '';
+  const curriculoReducer = useSelector(state => state.curriculoReducer)
+  const dispatch = useDispatch()
+  
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
   }
+
   // variaveis do formulario.
   const formik = useFormik({
     initialValues: {
       nome: '',
       local: '',
-      atividade: '',
+      atividades: '',
       dataInicio: '',
       dataTermino: '',
     },
@@ -31,23 +34,49 @@ export default function ModalExperiencia() {
       dataTermino: yup.string().required('O campo Data de Término é obrigatório.'),
     }),
   });
-  // React.useEffect(() => {
-  //   console.log(formik.values)
-  // }, [formik.values])
+
+  const limpar = () => {
+    formik.values.nome = '';
+    formik.values.local = '';
+    formik.values.atividades = '';
+    formik.values.dataInicio = '';
+    formik.values.dataTermino = '';
+  }
+
+  const btn_fechar = () => {
+    limpar()
+    dispatch(curriculoActions.modal_experiencia(false))
+  }
+
+  const att_tabela = () => {
+    const userID = sessionStorage.getItem('user_id')
+    dispatch(curriculoActions.busca_curriculo(userID))
+  }
+
+  const envia_experiencia = () => {
+    axios.post(`${api_experiencia}/create`, {
+      nome: formik.values.nome,
+      local: formik.values.local,
+      atividades: formik.values.atividades,
+      dataInicio: formik.values.dataInicio,
+      dataTermino: formik.values.dataTermino,
+    }, { headers })
+      .then(res => {
+        att_tabela()
+        console.log('enviado com sucesso')
+      }).catch(err => {
+        console.log(err)
+      })
+  };
+
   return (
     <>
-      <Button className="mb-3" color="primary" type="button" onClick={() => setModalOpen(!modalOpen)}>
-        <span className="btn-inner--icon">
-          <i className="fa fa-plus-circle ml--2"/>
-        </span>
-        <span className="btn-inner--text ml-2">Nova Expe.</span>
-      </Button>
-      <Modal className="modal-lg" isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)} modalClassName="bd-example-modal-lg">
+      <Modal className="modal-lg" isOpen={curriculoReducer.modal_experiencia} toggle={btn_fechar} modalClassName="bd-example-modal-lg">
         <div className="modal-header">
           <h5 className="modal-title" id="exampleModalScrollableTitle">
             Adicionar Experiências
           </h5>
-          <button aria-label="Close" className="close" type="button" onClick={() => setModalOpen(!modalOpen)}>
+          <button aria-label="Close" className="close" type="button" onClick={btn_fechar}>
             <span aria-hidden={true}>
               <i className="ni ni-fat-remove"/>
             </span>
@@ -85,10 +114,10 @@ export default function ModalExperiencia() {
                 </FormGroup>
                 <FormGroup className="mb-3">
                   <Label className="form-control-label required" htmlFor="atividade">Atividade</Label>
-                  <Input className="form-control-alternative" id="atividade" placeholder="Digite aqui as atividades" type="textarea" rows="3"
-                    invalid={formik.touched.atividade && formik.errors.atividade ? true : false}
-                    {...formik.getFieldProps('atividade')}/>
-                  <FormFeedback>{formik.touched.atividade && formik.errors.atividade ? formik.errors.atividade : null}</FormFeedback>
+                  <Input className="form-control-alternative" id="atividades" placeholder="Digite aqui as atividades" type="textarea" rows="3"
+                    invalid={formik.touched.atividades && formik.errors.atividades ? true : false}
+                    {...formik.getFieldProps('atividades')}/>
+                  <FormFeedback>{formik.touched.atividades && formik.errors.atividades ? formik.errors.atividades : null}</FormFeedback>
                 </FormGroup>
               </Col>
             </Row>
@@ -114,13 +143,13 @@ export default function ModalExperiencia() {
                 </FormGroup>
               </Col>
             </Row>
-            <Button className="btn-icon float-right mt-2" color="success" type="submit" onClick={() => {}}>
+            <Button className="btn-icon float-right mt-2" color="success" type="submit" onClick={() => {envia_experiencia(); btn_fechar()}}>
               <span className="btn-inner--icon">
                 <i className="ni ni-check-bold ml--2"/>
               </span>
               <span className="btn-inner--text ml-2">Salvar</span>
             </Button>
-            <Button className="btn-icon float-right mr-3 mt-2" color="danger" onClick={() => Limpar (setModalOpen(!modalOpen))}>
+            <Button className="btn-icon float-right mr-3 mt-2" color="danger" onClick={btn_fechar}>
               <span className="btn-inner--icon">
                 <i className="fa fa-times ml--2"/>
               </span>

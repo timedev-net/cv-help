@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import { UncontrolledCollapse, DropdownMenu, DropdownItem, DropdownToggle, UncontrolledDropdown, Media, NavbarBrand, Navbar, Nav, Container, Row, Col, Card } from "reactstrap";
 import { Link } from "react-router-dom";
-import Logo from "components/Logo/Logo.js";
+// import Logo from "components/Logo/Logo.js";
 import { useSelector, useDispatch } from 'react-redux'
 import userActions from '../../store/actions/userActions'
 import curriculoActions from 'store/actions/curriculoActions';
@@ -9,7 +9,7 @@ import curriculoActions from 'store/actions/curriculoActions';
 export default function DashNavbar() {
 
   const reducer = useSelector( state => state.userReducer);
-  const dados_curriculo = useSelector( state => state.curriculoReducer);
+  const curriculoReducer = useSelector( state => state.curriculoReducer);
   const userID = sessionStorage.getItem('user_id')
   const dispatch = useDispatch();
   useEffect(() => {
@@ -19,13 +19,9 @@ export default function DashNavbar() {
     }
   }, [])
 
-  // useEffect(() => {
-  //   console.log(reducer)
-  // }, [reducer])
-
-  // useEffect(() => {
-  //   console.log(dados_curriculo)
-  // }, [dados_curriculo])
+  useEffect(() => {
+    console.log(curriculoReducer)
+  }, [curriculoReducer])
 
   return (
     <>
@@ -33,11 +29,11 @@ export default function DashNavbar() {
         <Navbar className="navbar-main navbar-transparent navbar-light headroom" expand="lg" id="navbar-main">
           <Container className="nav-container bg-gradient-purple">
             <NavbarBrand className="mr-lg-5 ml-4" to="#" tag={Link}>
-              <Logo />
+              <div className="logo-navbar"/>
             </NavbarBrand>
             <button className="navbar-toggler" id="navbar_global">
               <span className="avatar avatar-sm rounded-circle">
-                <img alt="..." src={require("assets/img/theme/team-4-800x800.jpg")}/>
+                <img className="logo-user-navbar"/>
               </span>
             </button>
             <UncontrolledCollapse toggler="#navbar_global" navbar>
@@ -46,7 +42,7 @@ export default function DashNavbar() {
                   <div className="collapse-brand">
                     <Media className="align-items-center">
                       <span className="avatar avatar-sm rounded-circle">
-                        <img alt="..." src={require("assets/img/theme/team-4-800x800.jpg")} />
+                        <img className="logo-user-navbar" />
                       </span>
                       <Media className="ml-2 mr-1 d-lg-block">
                         <span className="mb-0 text-sm font-weight-bold">
@@ -105,7 +101,7 @@ export default function DashNavbar() {
                       <Card className="card-nav collapse-brand bg-gradient-gray-dark">
                         <Media className="align-items-center">
                           <span className="avatar avatar-sm rounded-circle">
-                            <img alt="..." src={require("assets/img/theme/team-4-800x800.jpg")} />
+                            <img className="logo-user-navbar"/>
                           </span>
                           <Media className="ml-1 mr-1 d-lg-block">
                             <span className="mb-0 text-sm font-weight-bold" id="nome">

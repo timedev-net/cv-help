@@ -1,66 +1,52 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { Card, Container, Row, Col, Button } from 'reactstrap';
 import BootstrapTable from "react-bootstrap-table-next";
 import ToolkitProvider from "react-bootstrap-table2-toolkit";
+
+import { useSelector, useDispatch } from 'react-redux'
+import axios from 'axios';
+import { api_experiencia } from '../../services/api.js';
+import curriculoActions from '../../store/actions/curriculoActions'
+
 import ModalExperiencia from 'components/Modal/ModalExperiencia.js';
 
 export default function Experiencias(){
-  // Dados que vira do banco
-  const dataTableExperiencia = [
-    {
-      id: 1,
-      nome: 'Repositor de Estoque',
-      local: 'Atacadão',
-      atividade: 'Realizar a reposição do estoque nas prateleiras',
-      dataInicio: '07-03-2017',
-      dataTermino: '27-11-2020',
-    },
-    {
-      id: 2,
-      nome: 'Farmaceutico',
-      local: 'Farmabem',
-      atividade: 'Vendedor de Remédios',
-      dataInicio: '07-04-2016',
-      dataTermino: '30-01-2019',
-    },
-  ];
-  // função para editar o campo.
-  function btnEditar() {
-    alert('editar campo')
-  };
-  // função para deletar o campo.
-  function btnDeletar() {
-    alert('deletar campo')
-  };
-  // constante que adiciona os buttons de acoes na linha.
-  const addBotoesAcoes = () => {
-    return(
-      <div className="btnAcoes">
-        <Button className="btn-icon" color="success" onClick={btnEditar}>
-          <span className="btn-inner--icon">
-            <i className="fa fa-pencil"/>
-          </span>
-        </Button>
-        <Button className="btn-icon" color="danger" onClick={btnDeletar}>
-          <span className="btn-inner--icon">
-            <i className="fa fa-trash-o"/>
-          </span>
-        </Button>
-      </div>
-    )
-  };
-  // React.useEffect(() => {
-  //   console.log(formik.values)
-  // }, [formik.values])
+  const dispatch = useDispatch()
+  const dados_formacao = useSelector(state => state.curriculoReducer)
+
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+  }
+
+  const btnNovo = () => {
+    dispatch(curriculoActions.modal_experiencia(true))
+  }
+
+  const att_tabela = () => {
+    const userID = sessionStorage.getItem('user_id')
+    dispatch(curriculoActions.busca_curriculo(userID))
+  }
+
+  const btnDeletar = (rowId) => {
+    axios.delete(`${api_experiencia}/delete/${rowId}`, {headers})
+    .then(res => {
+    att_tabela() 
+      console.log('formação apagada com sucesso')
+    }).catch(err => {
+      console.log(err + 'falha ao apagar formação')
+    })
+  }
+
   return (
     <>
       <Container fluid>
         <Row> {/* Render da Tabela Conhecimentos*/}
           <Card className="tabelinha">
             <ToolkitProvider
-              // data = nome da tabela que tera no banco. 
-              data={dataTableExperiencia}
-              keyField="id"
+              data={dados_formacao.show_curriculo.experiencias && dados_formacao.show_curriculo.experiencias}
+              keyField="_id"
               columns={[
                 {
                   dataField: 'nome',
@@ -73,7 +59,7 @@ export default function Experiencias(){
                   sort: true,
                 },
                 {
-                  dataField: 'atividade',
+                  dataField: 'atividades',
                   text: 'Atividade',
                   sort: true,
                 },
@@ -88,28 +74,41 @@ export default function Experiencias(){
                   sort: true,
                 },
                 {
-                  dataField: 'actions',
-                  text: 'Ações',
-                  formatter: addBotoesAcoes,
+                  dataField: "_id",
+                  text: "Excluir",
+                  formatter: (cellContent, row) => {
+                    return(
+                      <div className="btnAcoes">
+                        <Button className="btn-icon" color="danger" onClick={() => btnDeletar(row._id)}>
+                          <span className="btn-inner--icon">
+                            <i className="fa fa-trash-o"/>
+                          </span>
+                        </Button>
+                      </div>
+                    )
+                  }
                 }
               ]}
             >
-              {(props) => (
+              {(props) => (<>
                 <div className="table-responsive pt-3">
-                  <Container fluid>
-                    <Row>
-                      <Col>
-                        {/* aqui sera chamado o component ModalExperiencia */}
-                        <ModalExperiencia/>
-                      </Col>
-                    </Row>
-                  </Container>
+                  <Button className="mb-3" color="primary" type="button" onClick={btnNovo}>
+                    <span className="btn-inner--icon">
+                      <i className="fa fa-plus-circle ml--2"/>
+                    </span>
+                    <span className="btn-inner--text ml-2">Nova Expe.</span>
+                  </Button>
                   <BootstrapTable
                     {...props.baseProps}
                     bootstrap4={true}
                     bordered={false}
+                    // rowEvents={{onClick: (e, row, idx) => {
+                    //   setDataRow(row)
+                    // }}}
                   />
                 </div>
+                <ModalExperiencia/>
+              </>
               )}
             </ToolkitProvider>
           </Card>
